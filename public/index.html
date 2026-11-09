@@ -1,0 +1,60 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leave Management System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main class="container">
+        <h1>Leave Management System</h1>
+
+        <section id="registerSection">
+            <h2>Create User</h2>
+
+            <form id="registerForm">
+                <label for="username">Username:</label>
+                <input id="username" name="username" required>
+
+                <label for="email">Email:</label>
+                <input id="email" name="email" type="email" required>
+
+                <label for="rollNumber">Roll Number:</label>
+                <input id="rollNumber" name="rollNumber" required>
+
+                <label for="casualLeave">Initial Casual Leave:</label>
+                <input id="casualLeave" name="casualLeave"
+                       type="number" min="0" value="1" required>
+
+                <label for="medicalLeave">Initial Medical Leave:</label>
+                <input id="medicalLeave" name="medicalLeave"
+                       type="number" min="0" value="2" required>
+
+                <button type="submit">Register</button>
+            </form>
+
+            <p>Already have an account?
+                <a href="#" id="showLogin">Login</a>
+            </p>
+        </section>
+
+        <section id="loginSection" hidden>
+            <h2>Login</h2>
+
+            <form id="loginForm">
+                <label for="loginEmail">Email:</label>
+                <input id="loginEmail" type="email" required>
+                <button type="submit">Login</button>
+            </form>
+
+            <p><a href="#" id="showRegister">Create a new account</a></p>
+        </section>
+
+        <p id="message" role="status"></p>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>

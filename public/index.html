@@ -1,112 +1,124 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leave Management System</title>
-    <link rel="stylesheet" href="style.css">
-</head>
+document.addEventListener("DOMContentLoaded", () => {
 
-<body>
-    <main class="container">
+    const registerSection = document.getElementById("registerSection");
+    const loginSection = document.getElementById("loginSection");
+    const message = document.getElementById("message");
 
-        <h1>Leave Management System</h1>
+    const registerForm = document.getElementById("registerForm");
+    const loginForm = document.getElementById("loginForm");
 
-        <!-- REGISTER SECTION -->
-        <section id="registerSection">
+    const registerButton = registerForm.querySelector('button[type="submit"]');
+    const loginButton = loginForm.querySelector('button[type="submit"]');
 
-            <h2>Create User</h2>
+    const API_URL = "/api/leaves";
 
-            <form id="registerForm">
+    // SHOW LOGIN
+    document.getElementById("showLogin").addEventListener("click", (event) => {
+        event.preventDefault();
 
-                <label for="username">Username:</label>
-                <input id="username" name="username" required>
+        registerSection.hidden = true;
+        loginSection.hidden = false;
+        message.textContent = "";
+    });
 
-                <label for="email">Email:</label>
-                <input id="email" name="email" type="email" required>
+    // SHOW REGISTER
+    document.getElementById("showRegister").addEventListener("click", (event) => {
+        event.preventDefault();
 
-                <label for="rollNumber">Roll Number:</label>
-                <input id="rollNumber" name="rollNumber" required>
+        loginSection.hidden = true;
+        registerSection.hidden = false;
+        message.textContent = "";
+    });
 
-                <label for="casualLeave">Initial Casual Leave:</label>
-                <input id="casualLeave" name="casualLeave"
-                    type="number" min="0" value="1" required>
+    // REGISTER
+    registerForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
 
-                <label for="medicalLeave">Initial Medical Leave:</label>
-                <input id="medicalLeave" name="medicalLeave"
-                    type="number" min="0" value="2" required>
+        const formData = new FormData(registerForm);
+        const data = Object.fromEntries(formData.entries());
 
-                <button type="submit" id="registerButton">Register</button>
+        data.username = data.username.trim();
+        data.email = data.email.trim().toLowerCase();
+        data.rollNumber = data.rollNumber.trim();
 
-            </form>
+        data.casualLeave = Number(data.casualLeave);
+        data.medicalLeave = Number(data.medicalLeave);
 
-            <p>
-                Already have an account?
-                <a href="#" id="showLogin">Login</a>
-            </p>
+        try {
+            registerButton.disabled = true;
+            message.textContent = "Registering...";
 
-        </section>
+            const response = await fetch(`${API_URL}/register`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
 
-        <!-- LOGIN SECTION -->
-        <section id="loginSection" hidden>
+            const result = await response.json();
 
-            <h2>Login</h2>
+            if (!response.ok) {
+                throw new Error(result.message || "Registration failed");
+            }
 
-            <form id="loginForm">
+            message.textContent = "Registration successful! Please login.";
 
-                <label for="loginEmail">Email:</label>
-                <input id="loginEmail" type="email" required>
+            registerForm.reset();
 
-                <button type="submit" id="loginButton">Login</button>
+            registerSection.hidden = true;
+            loginSection.hidden = false;
 
-            </form>
+            document.getElementById("loginEmail").value = data.email;
 
-            <p>
-                <a href="#" id="showRegister">Create a new account</a>
-            </p>
+        } catch (error) {
+            console.error("Registration error:", error);
+            message.textContent = error.message;
+        } finally {
+            registerButton.disabled = false;
+        }
+    });
 
-        </section>
+    // LOGIN
+    loginForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
 
-        <p id="message" role="status"></p>
+        const email = document.getElementById("loginEmail").value.trim().toLowerCase();
 
-    </main>
+        try {
+            loginButton.disabled = true;
+            message.textContent = "Checking login details...";
 
-    <script>
+            const response = await fetch(`${API_URL}/login`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ email })
+            });
 
-        // BACKEND API
-        const API_URL = "/api/leaves";
+            const result = await response.json();
 
-        const message = document.getElementById("message");
+            if (!response.ok) {
+                throw new Error(result.message || "Login failed");
+            }
 
-        // SHOW LOGIN
-        document.getElementById("showLogin").addEventListener("click", function(event) {
+            if (!result.userId) {
+                throw new Error("User ID not received from server");
+            }
 
-            event.preventDefault();
+            sessionStorage.setItem("leaveUserId", result.userId);
 
-            document.getElementById("registerSection").hidden = true;
-            document.getElementById("loginSection").hidden = false;
+            message.textContent = "Login successful!";
 
-            message.textContent = "";
+            window.location.assign("/dashboard.html");
 
-        });
+        } catch (error) {
+            console.error("Login error:", error);
+            message.textContent = error.message;
+        } finally {
+            loginButton.disabled = false;
+        }
+    });
 
-        // SHOW REGISTER
-        document.getElementById("showRegister").addEventListener("click", function(event) {
-
-            event.preventDefault();
-
-            document.getElementById("loginSection").hidden = true;
-            document.getElementById("registerSection").hidden = false;
-
-            message.textContent = "";
-
-        });
-
-        // REGISTER
-        document.getElementById("registerForm").addEventListener("submit", async function(event) {
-
-            event.preventDefault();
-
-            const registerButton = document.getElementById("registerButton");
-
-            const user
+});

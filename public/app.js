@@ -2,58 +2,69 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const registerSection = document.getElementById("registerSection");
     const loginSection = document.getElementById("loginSection");
-    const message = document.getElementById("message");
 
     const registerForm = document.getElementById("registerForm");
     const loginForm = document.getElementById("loginForm");
 
-    const registerButton = registerForm.querySelector('button[type="submit"]');
-    const loginButton = loginForm.querySelector('button[type="submit"]');
+    const message = document.getElementById("message");
+
+    const registerButton = document.getElementById("registerButton");
+    const loginButton = document.getElementById("loginButton");
 
     const API_URL = "/api/leaves";
 
     // SHOW LOGIN
     document.getElementById("showLogin").addEventListener("click", (event) => {
+
         event.preventDefault();
 
         registerSection.hidden = true;
         loginSection.hidden = false;
+
         message.textContent = "";
+
     });
 
     // SHOW REGISTER
     document.getElementById("showRegister").addEventListener("click", (event) => {
+
         event.preventDefault();
 
         loginSection.hidden = true;
         registerSection.hidden = false;
+
         message.textContent = "";
+
     });
 
     // REGISTER
     registerForm.addEventListener("submit", async (event) => {
+
         event.preventDefault();
 
-        const formData = new FormData(registerForm);
-        const data = Object.fromEntries(formData.entries());
-
-        data.username = data.username.trim();
-        data.email = data.email.trim().toLowerCase();
-        data.rollNumber = data.rollNumber.trim();
-
-        data.casualLeave = Number(data.casualLeave);
-        data.medicalLeave = Number(data.medicalLeave);
+        const data = {
+            username: document.getElementById("username").value.trim(),
+            email: document.getElementById("email").value.trim().toLowerCase(),
+            rollNumber: document.getElementById("rollNumber").value.trim(),
+            casualLeave: Number(document.getElementById("casualLeave").value),
+            medicalLeave: Number(document.getElementById("medicalLeave").value)
+        };
 
         try {
+
             registerButton.disabled = true;
             message.textContent = "Registering...";
 
             const response = await fetch(`${API_URL}/register`, {
+
                 method: "POST",
+
                 headers: {
                     "Content-Type": "application/json"
                 },
+
                 body: JSON.stringify(data)
+
             });
 
             const result = await response.json();
@@ -72,29 +83,40 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("loginEmail").value = data.email;
 
         } catch (error) {
+
             console.error("Registration error:", error);
             message.textContent = error.message;
+
         } finally {
+
             registerButton.disabled = false;
+
         }
+
     });
 
     // LOGIN
     loginForm.addEventListener("submit", async (event) => {
+
         event.preventDefault();
 
         const email = document.getElementById("loginEmail").value.trim().toLowerCase();
 
         try {
+
             loginButton.disabled = true;
             message.textContent = "Checking login details...";
 
             const response = await fetch(`${API_URL}/login`, {
+
                 method: "POST",
+
                 headers: {
                     "Content-Type": "application/json"
                 },
+
                 body: JSON.stringify({ email })
+
             });
 
             const result = await response.json();
@@ -109,16 +131,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
             sessionStorage.setItem("leaveUserId", result.userId);
 
-            message.textContent = "Login successful!";
-
             window.location.assign("/dashboard.html");
 
         } catch (error) {
+
             console.error("Login error:", error);
             message.textContent = error.message;
+
         } finally {
+
             loginButton.disabled = false;
+
         }
+
     });
 
 });

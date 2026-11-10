@@ -1,124 +1,74 @@
-document.addEventListener("DOMContentLoaded", () => {
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leave Management System</title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="/app.js" defer></script>
+</head>
+<body>
 
-    const registerSection = document.getElementById("registerSection");
-    const loginSection = document.getElementById("loginSection");
-    const message = document.getElementById("message");
+    <main class="container">
 
-    const registerForm = document.getElementById("registerForm");
-    const loginForm = document.getElementById("loginForm");
+        <h1>Leave Management System</h1>
 
-    const registerButton = registerForm.querySelector('button[type="submit"]');
-    const loginButton = loginForm.querySelector('button[type="submit"]');
+        <!-- REGISTER SECTION -->
+        <section id="registerSection">
+            <h2>Create User</h2>
 
-    const API_URL = "/api/leaves";
+            <form id="registerForm">
 
-    // SHOW LOGIN
-    document.getElementById("showLogin").addEventListener("click", (event) => {
-        event.preventDefault();
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
 
-        registerSection.hidden = true;
-        loginSection.hidden = false;
-        message.textContent = "";
-    });
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
 
-    // SHOW REGISTER
-    document.getElementById("showRegister").addEventListener("click", (event) => {
-        event.preventDefault();
+                <label for="rollNumber">Roll Number:</label>
+                <input type="text" id="rollNumber" name="rollNumber" required>
 
-        loginSection.hidden = true;
-        registerSection.hidden = false;
-        message.textContent = "";
-    });
+                <label for="casualLeave">Initial Casual Leave:</label>
+                <input type="number" id="casualLeave"
+                    name="casualLeave" min="0" value="1" required>
 
-    // REGISTER
-    registerForm.addEventListener("submit", async (event) => {
-        event.preventDefault();
+                <label for="medicalLeave">Initial Medical Leave:</label>
+                <input type="number" id="medicalLeave"
+                    name="medicalLeave" min="0" value="2" required>
 
-        const formData = new FormData(registerForm);
-        const data = Object.fromEntries(formData.entries());
+                <button type="submit" id="registerButton">Register</button>
 
-        data.username = data.username.trim();
-        data.email = data.email.trim().toLowerCase();
-        data.rollNumber = data.rollNumber.trim();
+            </form>
 
-        data.casualLeave = Number(data.casualLeave);
-        data.medicalLeave = Number(data.medicalLeave);
+            <p>
+                Already have an account?
+                <a href="#" id="showLogin">Login</a>
+            </p>
+        </section>
 
-        try {
-            registerButton.disabled = true;
-            message.textContent = "Registering...";
+        <!-- LOGIN SECTION -->
+        <section id="loginSection" hidden>
 
-            const response = await fetch(`${API_URL}/register`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(data)
-            });
+            <h2>Login</h2>
 
-            const result = await response.json();
+            <form id="loginForm">
 
-            if (!response.ok) {
-                throw new Error(result.message || "Registration failed");
-            }
+                <label for="loginEmail">Email:</label>
+                <input type="email" id="loginEmail" required>
 
-            message.textContent = "Registration successful! Please login.";
+                <button type="submit" id="loginButton">Login</button>
 
-            registerForm.reset();
+            </form>
 
-            registerSection.hidden = true;
-            loginSection.hidden = false;
+            <p>
+                <a href="#" id="showRegister">Create a new account</a>
+            </p>
 
-            document.getElementById("loginEmail").value = data.email;
+        </section>
 
-        } catch (error) {
-            console.error("Registration error:", error);
-            message.textContent = error.message;
-        } finally {
-            registerButton.disabled = false;
-        }
-    });
+        <p id="message" role="status"></p>
 
-    // LOGIN
-    loginForm.addEventListener("submit", async (event) => {
-        event.preventDefault();
+    </main>
 
-        const email = document.getElementById("loginEmail").value.trim().toLowerCase();
-
-        try {
-            loginButton.disabled = true;
-            message.textContent = "Checking login details...";
-
-            const response = await fetch(`${API_URL}/login`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ email })
-            });
-
-            const result = await response.json();
-
-            if (!response.ok) {
-                throw new Error(result.message || "Login failed");
-            }
-
-            if (!result.userId) {
-                throw new Error("User ID not received from server");
-            }
-
-            sessionStorage.setItem("leaveUserId", result.userId);
-
-            message.textContent = "Login successful!";
-
-            window.location.assign("/dashboard.html");
-
-        } catch (error) {
-            console.error("Login error:", error);
-            message.textContent = error.message;
-        } finally {
-            loginButton.disabled = false;
-        }
-    });
-
-});
+</body>
+</html>

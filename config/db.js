@@ -1,13 +1,16 @@
-
 const mongoose = require("mongoose");
 
 const connectDB = async () => {
     try {
-        await mongoose.connect(
-            "mongodb://127.0.0.1:27017/leaveManagementDB"
-        );
+        const mongoURI = process.env.MONGODB_URI;
 
-        console.log("MongoDB connected successfully");
+        if (!mongoURI) {
+            throw new Error("MONGODB_URI is missing in environment variables");
+        }
+
+        await mongoose.connect(mongoURI);
+
+        console.log("MongoDB Atlas connected successfully");
 
     } catch (error) {
         console.error("MongoDB connection failed:", error.message);

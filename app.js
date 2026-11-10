@@ -1,4 +1,3 @@
-
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
@@ -7,7 +6,7 @@ const connectDB = require("./config/db");
 
 const app = express();
 
-// Middleware
+// MIDDLEWARE
 app.use(cors({
     origin: [
         "https://kanishghaa24.github.io",
@@ -21,18 +20,18 @@ app.use(cors({
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Static frontend files
+// FRONTEND STATIC FILES
 app.use(express.static(path.join(__dirname, "public")));
 
-// API routes
+// API ROUTES
 app.use("/api/leaves", require("./routes/leaveRoutes"));
 
-// Home route
+// HOME PAGE
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// Health check
+// HEALTH CHECK
 app.get("/health", (req, res) => {
     res.status(200).json({
         success: true,
@@ -40,7 +39,7 @@ app.get("/health", (req, res) => {
     });
 });
 
-// 404 handler
+// 404 HANDLER
 app.use((req, res) => {
     res.status(404).json({
         success: false,
@@ -48,7 +47,7 @@ app.use((req, res) => {
     });
 });
 
-// Server
+// SERVER
 const PORT = process.env.PORT || 3000;
 
 async function startServer() {
@@ -58,6 +57,7 @@ async function startServer() {
         app.listen(PORT, () => {
             console.log(`Server running on port ${PORT}`);
         });
+
     } catch (error) {
         console.error("Server startup failed:", error.message);
         process.exit(1);

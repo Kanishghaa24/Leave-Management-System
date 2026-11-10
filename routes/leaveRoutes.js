@@ -1,7 +1,7 @@
-
+```javascript
 const express = require("express");
 const router = express.Router();
-const User = require("../models/User");
+const User = require("../models/user");
 
 // REGISTER
 router.post("/register", async (req, res) => {
@@ -42,8 +42,8 @@ router.post("/register", async (req, res) => {
             username: username.trim(),
             email: email.trim().toLowerCase(),
             rollNumber: rollNumber.trim(),
-            casualLeave: Number(casualLeave),
-            medicalLeave: Number(medicalLeave)
+            casualLeave: casualLeave === undefined ? 1 : Number(casualLeave),
+            medicalLeave: medicalLeave === undefined ? 2 : Number(medicalLeave)
         });
 
         res.status(201).json({
@@ -176,3 +176,4 @@ router.post("/apply/:id", async (req, res) => {
 });
 
 module.exports = router;
+```

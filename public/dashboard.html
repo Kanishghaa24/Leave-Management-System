@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,101 +6,163 @@
     <title>Leave Dashboard</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <main class="container dashboard">
+
         <h1>Leave Management System</h1>
 
         <section>
             <h2>Leave Balance</h2>
+
             <p>Welcome, <strong id="username"></strong></p>
             <p>Roll Number: <strong id="rollNumber"></strong></p>
             <p>Casual Leave: <strong id="casualBalance"></strong></p>
             <p>Medical Leave: <strong id="medicalBalance"></strong></p>
 
-            <button type="button" id="refreshButton">Refresh Balance</button>
-            <button type="button" id="logoutButton">Logout</button>
+            <button type="button" id="refreshButton">
+                Refresh Balance
+            </button>
+
+            <button type="button" id="logoutButton">
+                Logout
+            </button>
         </section>
 
         <section>
             <h2>Apply for Leave</h2>
 
             <form id="leaveForm">
+
                 <label for="leaveType">Leave Type:</label>
+
                 <select id="leaveType" required>
                     <option value="Casual">Casual</option>
                     <option value="Medical">Medical</option>
                 </select>
 
                 <label for="days">Number of Days:</label>
-                <input id="days" type="number" min="1" step="1"
-                       value="1" required>
 
-                <button type="submit">Apply Leave</button>
+                <input
+                    id="days"
+                    type="number"
+                    min="1"
+                    step="1"
+                    value="1"
+                    required
+                >
+
+                <button type="submit" id="applyButton">
+                    Apply Leave
+                </button>
+
             </form>
         </section>
 
         <p id="message" role="status"></p>
+
     </main>
 
     <script>
-        const userId = sessionStorage.getItem("leaveUserId");
-        const message = document.getElementById("message");
+        // BACKEND API
+        // Frontend and backend are hosted on the same Render service.
+        const API_URL = "";
 
+        // GET USER ID
+        const userId = sessionStorage.getItem("leaveUserId");
+
+        const message = document.getElementById("message");
+        const applyButton = document.getElementById("applyButton");
+
+        // CHECK LOGIN
         if (!userId) {
             window.location.replace("/");
         }
 
+        // LOAD LEAVE BALANCE
         async function loadBalance() {
+
             try {
-                const response = await fetch(`/api/leaves/balance/${userId}`);
+
+                message.textContent = "Loading leave balance...";
+
+                const response = await fetch(
+                    `${API_URL}/api/leaves/balance/${encodeURIComponent(userId)}`
+                );
+
                 const data = await response.json();
 
-                if (!response.ok) throw new Error(data.message);
+                if (!response.ok) {
+                    throw new Error(data.message || "Unable to load balance");
+                }
 
-                document.getElementById("username").textContent = data.username;
-                document.getElementById("rollNumber").textContent = data.rollNumber;
-                document.getElementById("casualBalance").textContent = data.casualLeave;
-                document.getElementById("medicalBalance").textContent = data.medicalLeave;
+                document.getElementById("username").textContent =
+                    data.username;
+
+                document.getElementById("rollNumber").textContent =
+                    data.rollNumber;
+
+                document.getElementById("casualBalance").textContent =
+                    data.casualLeave;
+
+                document.getElementById("medicalBalance").textContent =
+                    data.medicalLeave;
+
                 message.textContent = "";
+
             } catch (error) {
-                message.textContent = error.message;
+
+                console.error("Balance error:", error);
+
+                message.textContent =
+                    error.message || "Could not connect to server.";
+
             }
         }
 
-        document.getElementById("refreshButton").addEventListener("click", loadBalance);
+        // REFRESH BALANCE
+        document
+            .getElementById("refreshButton")
+            .addEventListener("click", loadBalance);
 
-        document.getElementById("logoutButton").addEventListener("click", () => {
-            sessionStorage.removeItem("leaveUserId");
-            window.location.replace("/");
-        });
+        // LOGOUT
+        document
+            .getElementById("logoutButton")
+            .addEventListener("click", () => {
 
-        document.getElementById("leaveForm").addEventListener("submit", async (event) => {
-            event.preventDefault();
+                sessionStorage.removeItem("leaveUserId");
 
-            try {
-                const response = await fetch(`/api/leaves/apply/${userId}`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        leaveType: document.getElementById("leaveType").value,
-                        days: Number(document.getElementById("days").value)
-                    })
-                });
+                window.location.replace("/");
 
-                const data = await response.json();
-                message.textContent = data.message;
+            });
 
-                if (response.ok) {
-                    document.getElementById("days").value = 1;
-                    await loadBalance();
-                    message.textContent = data.message;
+        // APPLY FOR LEAVE
+        document
+            .getElementById("leaveForm")
+            .addEventListener("submit", async (event) => {
+
+                event.preventDefault();
+
+                const leaveType =
+                    document.getElementById("leaveType").value;
+
+                const days = Number(
+                    document.getElementById("days").value
+                );
+
+                if (!Number.isInteger(days) || days < 1) {
+
+                    message.textContent =
+                        "Please enter a valid number of days.";
+
+                    return;
                 }
-            } catch (error) {
-                message.textContent = "Could not apply for leave. Try again.";
-            }
-        });
 
-        loadBalance();
-    </script>
-</body>
-</html>
+                try {
+
+                    applyButton.disabled = true;
+
+                    message.textContent = "Submitting leave application...";
+
+                    const response = await fetch(
+                        `${API_URL}/api/leaves/apply/${encode

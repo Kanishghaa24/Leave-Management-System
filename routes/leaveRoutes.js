@@ -3,10 +3,16 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
 
-// Register a new user
+// REGISTER
 router.post("/register", async (req, res) => {
     try {
-        const { username, email, rollNumber, casualLeave, medicalLeave } = req.body;
+        const {
+            username,
+            email,
+            rollNumber,
+            casualLeave,
+            medicalLeave
+        } = req.body;
 
         if (!username || !email || !rollNumber) {
             return res.status(400).json({
@@ -44,15 +50,26 @@ router.post("/register", async (req, res) => {
             message: "Registration successful",
             userId: user._id
         });
+
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error("Registration error:", error);
+
+        res.status(500).json({
+            message: error.message
+        });
     }
 });
 
-// Login using email for this college exercise
+// LOGIN
 router.post("/login", async (req, res) => {
     try {
         const email = req.body.email?.trim().toLowerCase();
+
+        if (!email) {
+            return res.status(400).json({
+                message: "Email is required"
+            });
+        }
 
         const user = await User.findOne({ email });
 
@@ -66,18 +83,25 @@ router.post("/login", async (req, res) => {
             message: "Login successful",
             userId: user._id
         });
+
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error("Login error:", error);
+
+        res.status(500).json({
+            message: error.message
+        });
     }
 });
 
-// Get leave balance
+// GET LEAVE BALANCE
 router.get("/balance/:id", async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
 
         if (!user) {
-            return res.status(404).json({ message: "User not found" });
+            return res.status(404).json({
+                message: "User not found"
+            });
         }
 
         res.json({
@@ -86,20 +110,27 @@ router.get("/balance/:id", async (req, res) => {
             casualLeave: user.casualLeave,
             medicalLeave: user.medicalLeave
         });
+
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error("Balance error:", error);
+
+        res.status(500).json({
+            message: error.message
+        });
     }
 });
 
-// Apply for leave
+// APPLY FOR LEAVE
 router.post("/apply/:id", async (req, res) => {
     try {
         const { leaveType, days } = req.body;
         const numberOfDays = Number(days);
 
-        if (!["Casual", "Medical"].includes(leaveType) ||
+        if (
+            !["Casual", "Medical"].includes(leaveType) ||
             !Number.isInteger(numberOfDays) ||
-            numberOfDays < 1) {
+            numberOfDays < 1
+        ) {
             return res.status(400).json({
                 message: "Select a valid leave type and number of days"
             });
@@ -108,12 +139,13 @@ router.post("/apply/:id", async (req, res) => {
         const user = await User.findById(req.params.id);
 
         if (!user) {
-            return res.status(404).json({ message: "User not found" });
+            return res.status(404).json({
+                message: "User not found"
+            });
         }
 
-        const balanceField = leaveType === "Casual"
-            ? "casualLeave"
-            : "medicalLeave";
+        const balanceField =
+            leaveType === "Casual" ? "casualLeave" : "medicalLeave";
 
         if (user[balanceField] < numberOfDays) {
             return res.status(400).json({
@@ -130,9 +162,16 @@ router.post("/apply/:id", async (req, res) => {
 
         await user.save();
 
-        res.json({ message: "Leave applied successfully" });
+        res.json({
+            message: "Leave applied successfully"
+        });
+
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error("Leave application error:", error);
+
+        res.status(500).json({
+            message: error.message
+        });
     }
 });
 

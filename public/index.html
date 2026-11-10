@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,14 +6,19 @@
     <title>Leave Management System</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <main class="container">
+
         <h1>Leave Management System</h1>
 
+        <!-- REGISTER SECTION -->
         <section id="registerSection">
+
             <h2>Create User</h2>
 
             <form id="registerForm">
+
                 <label for="username">Username:</label>
                 <input id="username" name="username" required>
 
@@ -26,35 +30,83 @@
 
                 <label for="casualLeave">Initial Casual Leave:</label>
                 <input id="casualLeave" name="casualLeave"
-                       type="number" min="0" value="1" required>
+                    type="number" min="0" value="1" required>
 
                 <label for="medicalLeave">Initial Medical Leave:</label>
                 <input id="medicalLeave" name="medicalLeave"
-                       type="number" min="0" value="2" required>
+                    type="number" min="0" value="2" required>
 
-                <button type="submit">Register</button>
+                <button type="submit" id="registerButton">Register</button>
+
             </form>
 
-            <p>Already have an account?
+            <p>
+                Already have an account?
                 <a href="#" id="showLogin">Login</a>
             </p>
+
         </section>
 
+        <!-- LOGIN SECTION -->
         <section id="loginSection" hidden>
+
             <h2>Login</h2>
 
             <form id="loginForm">
+
                 <label for="loginEmail">Email:</label>
                 <input id="loginEmail" type="email" required>
-                <button type="submit">Login</button>
+
+                <button type="submit" id="loginButton">Login</button>
+
             </form>
 
-            <p><a href="#" id="showRegister">Create a new account</a></p>
+            <p>
+                <a href="#" id="showRegister">Create a new account</a>
+            </p>
+
         </section>
 
         <p id="message" role="status"></p>
+
     </main>
 
-    <script src="app.js"></script>
-</body>
-</html>
+    <script>
+
+        // BACKEND API
+        const API_URL = "/api/leaves";
+
+        const message = document.getElementById("message");
+
+        // SHOW LOGIN
+        document.getElementById("showLogin").addEventListener("click", function(event) {
+
+            event.preventDefault();
+
+            document.getElementById("registerSection").hidden = true;
+            document.getElementById("loginSection").hidden = false;
+
+            message.textContent = "";
+
+        });
+
+        // SHOW REGISTER
+        document.getElementById("showRegister").addEventListener("click", function(event) {
+
+            event.preventDefault();
+
+            document.getElementById("loginSection").hidden = true;
+            document.getElementById("registerSection").hidden = false;
+
+            message.textContent = "";
+
+        });
+
+        // REGISTER
+        document.getElementById("registerForm").addEventListener("submit", async function(event) {
+
+            event.preventDefault();
+
+            const registerButton = document.getElementById("registerButton");
+
+            const user
